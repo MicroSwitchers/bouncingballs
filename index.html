@@ -8,6 +8,20 @@
         #toggleSettings { position: absolute; top: 10px; left: 10px; z-index: 11; }
         .colorOption { display: inline-block; width: 20px; height: 20px; margin-right: 5px; border: 1px solid #000; }
         canvas { background: #363636; display: block; }
+
+        /* Default styles for text boxes */
+        #settings input {
+            width: 100%;
+            max-width: 45px;
+        }
+
+        /* Styles for mobile devices */
+        @media (max-width: 480px) {
+            #settings input {
+                max-width: 45px; /* Adjust this value as needed */
+                width: 100%; /* Make text boxes take up full available width */
+            }
+        }
     </style>
 </head>
 <body>
