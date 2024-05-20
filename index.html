@@ -1,45 +1,108 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Responsive Bouncing Balls with Color Selection</title>
-    <style>
-        body { margin: 0; overflow: hidden; font-family: Arial, sans-serif; }
-        #settings { position: absolute; top: 40px; left: 10px; z-index: 10; background: #FFF; padding: 10px; border-radius: 8px; display: none; }
-        #toggleSettings { position: absolute; top: 10px; left: 10px; z-index: 11; }
-        .colorOption { display: inline-block; width: 20px; height: 20px; margin-right: 5px; border: 1px solid #000; }
-        canvas { background: #363636; display: block; }
+  <title>Neon Ball Drop</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(to bottom right, #222, #333);
+    }
 
-        /* Default styles for text boxes */
-        #settings input {
-            width: 100%;
-            max-width: 45px;
-        }
+    #settings {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      display: none;
+    }
 
-        /* Styles for mobile devices */
-        @media (max-width: 480px) {
-            #settings input {
-                max-width: 45px; /* Adjust this value as needed */
-                width: 100%; /* Make text boxes take up full available width */
-            }
-        }
-    </style>
+    #settings label {
+      display: block;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    #settings input[type="number"] {
+      width: 60px;
+      padding: 8px;
+      border: 1px solid #ffffff;
+      border-radius: 4px;
+    }
+
+    #settings button {
+      background-color: #06980b;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    #settings button:hover {
+      background-color: #45a049;
+    }
+
+    .colorOption {
+      display: inline-block;
+      width: 25px;
+      height: 25px;
+      margin: 5px;
+      border: 2px solid #fff;
+      cursor: pointer;
+    }
+
+    .colorOption.selected {
+      border: 2px solid #000;
+    }
+
+    #settingsToggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 11;
+      background-color: #017605;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0);
+    }
+
+    #settingsToggle:hover {
+      background-color: #099510;
+    }
+
+    canvas {
+      background: transparent;
+      display: block;
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-<button id="toggleSettings">Settings</button>
-<div id="settings">
-    <div>Colors:</div>
-    <!-- Color checkboxes will be inserted here -->
-    <br>
+  <button id="settingsToggle" onclick="toggleSettings()">⚙️</button>
+  <div id="settings">
     <label for="ballCount">Number of Balls:</label>
-    <input type="number" id="ballCount" value="3" min="1" max="25"><br>
+    <input type="number" id="ballCount" value="3" min="1" max="25">
     <label for="bounceCount">Number of Bounces:</label>
-    <input type="number" id="bounceCount" value="3" min="1" max="10"><br>
+    <input type="number" id="bounceCount" value="3" min="1" max="10">
     <label for="ballSize">Ball Size:</label>
-    <input type="number" id="ballSize" value="50" min="10" max="100"><br>
+    <input type="number" id="ballSize" value="50" min="10" max="100">
+    <label>Colors:</label>
+    <div id="colorOptions"></div>
     <button onclick="applyAndCloseSettings()">Apply</button>
-</div>
-<canvas></canvas>
-<script>
+  </div>
+
+  <canvas></canvas>
+
+  <script>
     var canvas = document.querySelector('canvas');
     var ctx = canvas.getContext('2d');
     var width = canvas.width = window.innerWidth;
@@ -50,160 +113,157 @@
     var ballSize = 50;
 
     var fluorescentColors = [
-        {color: '#ff005c', selected: true}, // Red
-        {color: '#ffbf00', selected: true}, // Orange
-        {color: '#faff00', selected: true}, // Yellow
-        {color: '#68ff00', selected: true}, // Green
-        {color: '#00f3ff', selected: true}  // Cyan
+      { color: '#ff005c', selected: true }, // Red
+      { color: '#ffbf00', selected: true }, // Orange
+      { color: '#faff00', selected: true }, // Yellow
+      { color: '#68ff00', selected: true }, // Green
+      { color: '#00f3ff', selected: true }  // Cyan
     ];
 
     function generateColorCheckboxes() {
-        var container = document.getElementById('settings');
-        fluorescentColors.forEach((item, index) => {
-            var wrapper = document.createElement('div');
-            var checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.id = 'color' + index;
-            checkbox.checked = item.selected;
-            checkbox.onchange = function() { item.selected = checkbox.checked; };
-
-            var label = document.createElement('label');
-            label.htmlFor = 'color' + index;
-            var colorSample = document.createElement('span');
-            colorSample.className = 'colorOption';
-            colorSample.style.backgroundColor = item.color;
-            label.appendChild(colorSample);
-            wrapper.appendChild(checkbox);
-            wrapper.appendChild(label);
-
-            container.insertBefore(wrapper, container.firstChild);
-        });
+      var container = document.getElementById('colorOptions');
+      fluorescentColors.forEach((item, index) => {
+        var colorSample = document.createElement('span');
+        colorSample.className = 'colorOption';
+        colorSample.style.backgroundColor = item.color;
+        colorSample.classList.toggle('selected', item.selected);
+        colorSample.onclick = function() {
+          item.selected = !item.selected;
+          colorSample.classList.toggle('selected', item.selected);
+        };
+        container.appendChild(colorSample);
+      });
     }
 
-    var settingsButton = document.getElementById('toggleSettings');
-    var settingsPanel = document.getElementById('settings');
-
-    settingsButton.onclick = function() {
-        settingsPanel.style.display = settingsPanel.style.display === 'block' ? 'none' : 'block';
-    };
-
     function applyAndCloseSettings() {
-        maxBalls = parseInt(document.getElementById('ballCount').value, 10);
-        maxBounces = parseInt(document.getElementById('bounceCount').value, 10);
-        ballSize = parseInt(document.getElementById('ballSize').value, 10);
-        settingsPanel.style.display = 'none';
+      maxBalls = parseInt(document.getElementById('ballCount').value, 10);
+      maxBounces = parseInt(document.getElementById('bounceCount').value, 10);
+      ballSize = parseInt(document.getElementById('ballSize').value, 10);
+      toggleSettings();
+    }
+
+    function toggleSettings() {
+      var settings = document.getElementById('settings');
+      settings.style.display = settings.style.display === 'none' ? 'block' : 'none';
     }
 
     window.addEventListener('resize', function() {
-        width = canvas.width = window.innerWidth;
-        height = canvas.height = window.innerHeight;
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
     });
 
     function random(min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
+      return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
     function getRandomColor() {
-        var selectedColors = fluorescentColors.filter(color => color.selected).map(color => color.color);
-        return selectedColors[random(0, selectedColors.length - 1)];
+      var selectedColors = fluorescentColors.filter(color => color.selected).map(color => color.color);
+      return selectedColors[random(0, selectedColors.length - 1)];
     }
 
     class Ball {
-        constructor() {
-            this.size = ballSize;
-            this.x = (width / 2) + random(-50, 50);
-            this.y = -this.size;
-            this.velX = random(-7, 7);
-            this.velY = random(2, 5);
-            this.color = getRandomColor();
-            this.bounceCount = 0;
-            this.trail = [];
-            this.trailLength = 15; // Increased trail length
+      constructor() {
+        this.size = ballSize;
+        this.x = (width / 2) + random(-50, 50);
+        this.y = -this.size;
+        this.velX = random(-7, 7);
+        this.velY = random(2, 5);
+        this.color = getRandomColor();
+        this.bounceCount = 0;
+        this.trail = [];
+        this.trailLength = 15;
+      }
+
+      draw() {
+        // Create a noticeable gradient for the ball
+        var gradient = ctx.createRadialGradient(this.x, this.y, this.size * 0.2, this.x, this.y, this.size);
+        gradient.addColorStop(0, 'white');
+        gradient.addColorStop(0.3, this.color);
+        gradient.addColorStop(1, 'black');
+
+        // Draw the ball with gradient
+        ctx.fillStyle = gradient;
+        ctx.shadowColor = this.color;
+        ctx.shadowBlur = 3;  // Even more reduced glow effect
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, 2 * Math.PI);
+        ctx.fill();
+
+        // Remove shadow after drawing the ball
+        ctx.shadowBlur = 0;
+
+        // Draw the trail with very subtle glow effect
+        for (let i = 0; i < this.trail.length; i++) {
+          let opacity = 1 - (i / this.trailLength);
+          ctx.fillStyle = this.color.replace(')', `, ${opacity})`).replace('rgb', 'rgba');
+          let size = this.size * (1 - (i / this.trailLength));
+          ctx.shadowColor = this.color;
+          ctx.shadowBlur = 1 * opacity;  // Further reduced glow effect
+          ctx.beginPath();
+          ctx.arc(this.trail[i].x, this.trail[i].y, size, 0, 2 * Math.PI);
+          ctx.fill();
         }
+        ctx.shadowBlur = 0; // Clear shadow blur for next frame
+      }
 
-        draw() {
-            ctx.fillStyle = this.color;
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.size, 0, 2 * Math.PI);
-            ctx.fill();
-
-            // Draw the trailing effect
-            for (let i = 0; i < this.trail.length; i++) {
-                let opacity = 1 - (i / this.trailLength);
-                ctx.fillStyle = this.color.replace(')', `, ${opacity})`).replace('rgb', 'rgba');
-                let size = this.size * (1 - (i / this.trailLength));
-                ctx.beginPath();
-                ctx.arc(this.trail[i].x, this.trail[i].y, size, 0, 2 * Math.PI);
-                ctx.fill();
-            }
+      update() {
+        if ((this.x + this.size) >= width || (this.x - this.size) <= 0) {
+          this.velX = -(this.velX);
         }
-
-        update() {
-            if ((this.x + this.size) >= width || (this.x - this.size) <= 0) {
-                this.velX = -(this.velX);
-            }
-            if (this.y + this.size >= height) {
-                if (this.bounceCount < maxBounces) {
-                    this.velY = -(this.velY * 0.9);
-                    this.bounceCount++;
-                } else if (this.bounceCount === maxBounces) {
-                    this.velY = +(Math.abs(this.velY));
-                    this.bounceCount++;
-                }
-            } else {
-                this.velY += 0.25;
-            }
-            this.x += this.velX;
-            this.y += this.velY;
-
-            // Update the trail
-            this.trail.unshift({ x: this.x, y: this.y });
-            if (this.trail.length > this.trailLength) {
-                this.trail.pop();
-            }
+        if (this.y + this.size >= height) {
+          if (this.bounceCount < maxBounces) {
+            this.velY = -(this.velY * 0.9);
+            this.bounceCount++;
+          } else if (this.bounceCount === maxBounces) {
+            this.velY = +(Math.abs(this.velY));
+            this.bounceCount++;
+          }
+        } else {
+          this.velY += 0.25;
         }
+        this.x += this.velX;
+        this.y += this.velY;
+
+        this.trail.unshift({ x: this.x, y: this.y });
+        if (this.trail.length > this.trailLength) {
+          this.trail.pop();
+        }
+      }
     }
 
     function addBalls(number) {
-        for (let i = 0; i < number; i++) {
-            let ball = new Ball();
-            balls.push(ball);
-        }
+      for (let i = 0; i < number; i++) {
+        let ball = new Ball();
+        balls.push(ball);
+      }
     }
 
     function loop() {
-        ctx.fillStyle = 'rgba(54, 54, 54, 1)';
-        ctx.fillRect(0, 0, width, height);
-        balls = balls.filter(ball => ball.bounceCount <= maxBounces + 1);
-        for (let i = 0; i < balls.length; i++) {
-            balls[i].draw();
-            balls[i].update();
-        }
-        requestAnimationFrame(loop);
+      ctx.fillStyle = 'rgba(54, 54, 54, 1)';
+      ctx.fillRect(0, 0, width, height);
+      balls = balls.filter(ball => ball.bounceCount <= maxBounces + 1);
+      for (let i = 0; i < balls.length; i++) {
+        balls[i].draw();
+        balls[i].update();
+      }
+      requestAnimationFrame(loop);
     }
 
     loop();
 
-    function applySettings() {
-        maxBalls = parseInt(document.getElementById('ballCount').value, 10);
-        maxBounces = parseInt(document.getElementById('bounceCount').value, 10);
-        ballSize = parseInt(document.getElementById('ballSize').value, 10);
-        settingsPanel.style.display = 'none';
-    }
-
     document.addEventListener('keydown', function(e) {
-        if (e.key === ' ' || e.keyCode === 32) {
-            addBalls(maxBalls);
-        }
+      if (e.key === ' ' || e.keyCode === 32) {
+        addBalls(maxBalls);
+      }
     });
 
     canvas.addEventListener('mousedown', function(e) {
-        if (e.button === 0) {
-            addBalls(maxBalls);
-        }
+      if (e.button === 0) {
+        addBalls(maxBalls);
+      }
     });
 
     generateColorCheckboxes();
-</script>
+  </script>
 </body>
 </html>
