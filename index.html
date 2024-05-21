@@ -175,12 +175,12 @@
         this.color = getRandomColor();
         this.bounceCount = 0;
         this.trail = [];
-        this.trailLength = 15;
+        this.trailLength = 30;
       }
 
       draw() {
         // Create a noticeable gradient for the ball
-        var gradient = ctx.createRadialGradient(this.x, this.y, this.size * 0.2, this.x, this.y, this.size);
+        var gradient = ctx.createRadialGradient(this.x, this.y, this.size * 0.1, this.x, this.y, this.size);
         gradient.addColorStop(0, 'white');
         gradient.addColorStop(0.3, this.color);
         gradient.addColorStop(1, 'black');
@@ -188,7 +188,7 @@
         // Draw the ball with gradient
         ctx.fillStyle = gradient;
         ctx.shadowColor = this.color;
-        ctx.shadowBlur = 3;  // Even more reduced glow effect
+        ctx.shadowBlur = 1;  // Even more reduced glow effect
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, 2 * Math.PI);
         ctx.fill();
@@ -202,7 +202,7 @@
           ctx.fillStyle = this.color.replace(')', `, ${opacity})`).replace('rgb', 'rgba');
           let size = this.size * (1 - (i / this.trailLength));
           ctx.shadowColor = this.color;
-          ctx.shadowBlur = 1 * opacity;  // Further reduced glow effect
+          ctx.shadowBlur = 15 * opacity;  // Further reduced glow effect
           ctx.beginPath();
           ctx.arc(this.trail[i].x, this.trail[i].y, size, 0, 2 * Math.PI);
           ctx.fill();
