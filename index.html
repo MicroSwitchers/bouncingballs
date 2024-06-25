@@ -1,273 +1,378 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Neon Ball Drop</title>
-  <meta name="viewport" content="width=device-width, initial-scale=2.5">
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      font-family: 'Montserrat', sans-serif;
-      background: linear-gradient(to bottom right, #222, #333);
-    }
-
-    #settings {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      z-index: 10;
-      background: rgba(255, 255, 255, 0.8);
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      display: none;
-      max-width: 90%;
-    }
-
-    #settings label {
-      display: block;
-      margin-bottom: 10px;
-      color: #333;
-    }
-
-    #settings input[type="number"] {
-      width: 60px;
-      padding: 8px;
-      border: 1px solid #ffffff;
-      border-radius: 4px;
-    }
-
-    #settings button {
-      background-color: #06980b;
-      color: white;
-      padding: 10px 15px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    #settings button:hover {
-      background-color: #45a049;
-    }
-
-    .colorOption {
-      display: inline-block;
-      width: 25px;
-      height: 25px;
-      margin: 5px;
-      border: 2px solid #fff;
-      cursor: pointer;
-    }
-
-    .colorOption.selected {
-      border: 2px solid #000;
-    }
-
-    #settingsToggle {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      z-index: 11;
-      background-color: #017605;
-      color: white;
-      padding: 10px;
-      border: none;
-      border-radius: 50%;
-      cursor: pointer;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0);
-    }
-
-    #settingsToggle:hover {
-      background-color: #099510;
-    }
-
-    canvas {
-      background: transparent;
-      display: block;
-      width: 100vw;
-      height: 100vh;
-    }
-  </style>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <title>Enchanting Bouncing Orbs</title>
+    <style>
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #fff;
+        }
+        #settings { 
+            position: absolute; 
+            top: 60px; 
+            left: 20px; 
+            z-index: 10; 
+            background: rgba(15, 12, 41, 0.8); 
+            padding: 20px; 
+            border-radius: 15px; 
+            display: none;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+        #toggleSettings { 
+            position: absolute; 
+            top: 20px; 
+            left: 20px; 
+            z-index: 11;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+        #toggleSettings:hover {
+            background: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+        }
+        .colorOptionWrapper {
+            display: inline-block;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        .colorOption { 
+            display: inline-block; 
+            width: 30px; 
+            height: 30px; 
+            border: 3px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .colorOption:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        .colorOption::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 15px;
+            height: 15px;
+            background-color: white;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .colorOption.selected::after {
+            opacity: 1;
+        }
+        canvas { 
+            display: block; 
+            background: transparent;
+        }
+        input[type="number"], input[type="range"] {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            padding: 5px;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+        input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        .disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+    </style>
 </head>
 <body>
-  <button id="settingsToggle" onclick="toggleSettings()">⚙️</button>
-  <div id="settings">
-    <label for="ballCount">Number of Balls:</label>
-    <input type="number" id="ballCount" value="3" min="1" max="25">
-    <label for="bounceCount">Number of Bounces:</label>
-    <input type="number" id="bounceCount" value="3" min="1" max="10">
-    <label for="ballSize">Ball Size:</label>
-    <input type="number" id="ballSize" value="50" min="10" max="100">
-    <label>Colors:</label>
+<button id="toggleSettings">Settings</button>
+<div id="settings">
+    <div>Orb Colors:</div>
     <div id="colorOptions"></div>
-    <button onclick="applyAndCloseSettings()">Apply</button>
-  </div>
-
-  <canvas></canvas>
-
-  <script>
+    <br>
+    <label for="ballCount">Number of Orbs:</label>
+    <input type="number" id="ballCount" value="3" min="1" max="25"><br>
+    <label for="bounceCount">Number of Bounces:</label>
+    <input type="number" id="bounceCount" value="5" min="1" max="10"><br>
+    <label for="ballSize">Orb Size:</label>
+    <input type="number" id="ballSize" value="40" min="5" max="100"><br>
+    <label>
+        <input type="checkbox" id="trailToggle" checked> Enable Trails
+    </label>
+    <div id="trailLengthContainer">
+        <label for="trailLength">Trail Length:</label>
+        <input type="range" id="trailLength" value="30" min="5" max="100">
+    </div>
+    <label>
+        <input type="checkbox" id="glowToggle" checked> Enable Glow Effect
+    </label>
+</div>
+<canvas></canvas>
+<script>
     var canvas = document.querySelector('canvas');
     var ctx = canvas.getContext('2d');
     var width = canvas.width = window.innerWidth;
     var height = canvas.height = window.innerHeight;
     var balls = [];
     var maxBalls = 3;
-    var maxBounces = 3;
-    var ballSize = 50;
+    var maxBounces = 5;
+    var ballSize = 40;
+    var trailLength = 30;
+    var trailsEnabled = true;
+    var glowEnabled = true;
 
-    var fluorescentColors = [
-      { color: '#ff005c', selected: true }, // Red
-      { color: '#ffbf00', selected: true }, // Orange
-      { color: '#faff00', selected: true }, // Yellow
-      { color: '#68ff00', selected: true }, // Green
-      { color: '#00f3ff', selected: true }  // Cyan
+    var vibrantColors = [
+        {color: '#FF1E00', selected: true}, // Vivid Red
+        {color: '#FF9A00', selected: true}, // Bright Orange
+        {color: '#FAFF00', selected: true}, // Vivid Yellow
+        {color: '#14FF00', selected: true}, // Neon Green
+        {color: '#00FFFF', selected: true}, // Cyan
+        {color: '#00A6FF', selected: true}, // Bright Blue
+        {color: '#AA00FF', selected: true}, // Vivid Purple
+        {color: '#FF00EA', selected: true}  // Hot Pink
     ];
 
-    function generateColorCheckboxes() {
-      var container = document.getElementById('colorOptions');
-      fluorescentColors.forEach((item, index) => {
-        var colorSample = document.createElement('span');
-        colorSample.className = 'colorOption';
-        colorSample.style.backgroundColor = item.color;
-        colorSample.classList.toggle('selected', item.selected);
-        colorSample.onclick = function() {
-          item.selected = !item.selected;
-          colorSample.classList.toggle('selected', item.selected);
-        };
-        container.appendChild(colorSample);
-      });
+    function generateColorOptions() {
+        var container = document.getElementById('colorOptions');
+        vibrantColors.forEach((item, index) => {
+            var wrapper = document.createElement('div');
+            wrapper.className = 'colorOptionWrapper';
+            
+            var colorOption = document.createElement('div');
+            colorOption.className = 'colorOption' + (item.selected ? ' selected' : '');
+            colorOption.style.backgroundColor = item.color;
+            colorOption.onclick = function() {
+                item.selected = !item.selected;
+                this.classList.toggle('selected');
+                updateBallColors();
+            };
+
+            wrapper.appendChild(colorOption);
+            container.appendChild(wrapper);
+        });
     }
 
-    function applyAndCloseSettings() {
-      maxBalls = parseInt(document.getElementById('ballCount').value, 10);
-      maxBounces = parseInt(document.getElementById('bounceCount').value, 10);
-      ballSize = parseInt(document.getElementById('ballSize').value, 10);
-      toggleSettings();
-    }
+    var settingsButton = document.getElementById('toggleSettings');
+    var settingsPanel = document.getElementById('settings');
 
-    function toggleSettings() {
-      var settings = document.getElementById('settings');
-      settings.style.display = settings.style.display === 'none' ? 'block' : 'none';
+    settingsButton.onclick = function() {
+        settingsPanel.style.display = settingsPanel.style.display === 'block' ? 'none' : 'block';
+    };
+
+    // Update settings in real-time
+    document.getElementById('ballCount').addEventListener('input', function() {
+        maxBalls = parseInt(this.value, 10);
+    });
+
+    document.getElementById('bounceCount').addEventListener('input', function() {
+        maxBounces = parseInt(this.value, 10);
+        balls.forEach(ball => ball.bounceCount = 0);
+    });
+
+    document.getElementById('ballSize').addEventListener('input', function() {
+        ballSize = parseInt(this.value, 10);
+        balls.forEach(ball => ball.size = ballSize);
+    });
+
+    document.getElementById('trailLength').addEventListener('input', function() {
+        trailLength = parseInt(this.value, 10);
+    });
+
+    document.getElementById('trailToggle').addEventListener('change', function() {
+        trailsEnabled = this.checked;
+        document.getElementById('trailLengthContainer').classList.toggle('disabled', !trailsEnabled);
+        if (!trailsEnabled) {
+            balls.forEach(ball => ball.trail = []);
+        }
+    });
+
+    document.getElementById('glowToggle').addEventListener('change', function() {
+        glowEnabled = this.checked;
+    });
+
+    function updateBallColors() {
+        balls.forEach(ball => ball.color = getRandomColor());
     }
 
     window.addEventListener('resize', function() {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
     });
 
     function random(min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
+        return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
     function getRandomColor() {
-      var selectedColors = fluorescentColors.filter(color => color.selected).map(color => color.color);
-      return selectedColors[random(0, selectedColors.length - 1)];
+        var selectedColors = vibrantColors.filter(color => color.selected).map(color => color.color);
+        return selectedColors[random(0, selectedColors.length - 1)] || '#FFFFFF';  // Default to white if no colors are selected
     }
 
     class Ball {
-      constructor() {
-        this.size = ballSize;
-        this.x = (width / 2) + random(-50, 50);
-        this.y = -this.size;
-        this.velX = random(-7, 7);
-        this.velY = random(2, 5);
-        this.color = getRandomColor();
-        this.bounceCount = 0;
-        this.trail = [];
-        this.trailLength = 30;
-      }
-
-      draw() {
-        // Create a noticeable gradient for the ball
-        var gradient = ctx.createRadialGradient(this.x, this.y, this.size * 0.1, this.x, this.y, this.size);
-        gradient.addColorStop(0, 'white');
-        gradient.addColorStop(0.3, this.color);
-        gradient.addColorStop(1, 'black');
-
-        // Draw the ball with gradient
-        ctx.fillStyle = gradient;
-        ctx.shadowColor = this.color;
-        ctx.shadowBlur = 1;  // Even more reduced glow effect
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, 2 * Math.PI);
-        ctx.fill();
-
-        // Remove shadow after drawing the ball
-        ctx.shadowBlur = 0;
-
-        // Draw the trail with very subtle glow effect
-        for (let i = 0; i < this.trail.length; i++) {
-          let opacity = 1 - (i / this.trailLength);
-          ctx.fillStyle = this.color.replace(')', `, ${opacity})`).replace('rgb', 'rgba');
-          let size = this.size * (1 - (i / this.trailLength));
-          ctx.shadowColor = this.color;
-          ctx.shadowBlur = 15 * opacity;  // Further reduced glow effect
-          ctx.beginPath();
-          ctx.arc(this.trail[i].x, this.trail[i].y, size, 0, 2 * Math.PI);
-          ctx.fill();
+        constructor() {
+            this.size = ballSize;
+            this.x = random(this.size, width - this.size);
+            this.y = -this.size;
+            this.velX = random(-5, 5);
+            this.velY = random(2, 7);
+            this.color = getRandomColor();
+            this.bounceCount = 0;
+            this.opacity = 1;
+            this.trail = [];
+            this.angle = 0;
+            this.active = true;
         }
-        ctx.shadowBlur = 0; // Clear shadow blur for next frame
-      }
 
-      update() {
-        if ((this.x + this.size) >= width || (this.x - this.size) <= 0) {
-          this.velX = -(this.velX);
-        }
-        if (this.y + this.size >= height) {
-          if (this.bounceCount < maxBounces) {
-            this.velY = -(this.velY * 0.9);
-            this.bounceCount++;
-          } else if (this.bounceCount === maxBounces) {
-            this.velY = +(Math.abs(this.velY));
-            this.bounceCount++;
-          }
-        } else {
-          this.velY += 0.25;
-        }
-        this.x += this.velX;
-        this.y += this.velY;
+        draw() {
+            // Draw smooth trail
+            if (trailsEnabled && this.trail.length > 1) {
+                ctx.beginPath();
+                ctx.moveTo(this.trail[0].x, this.trail[0].y);
+                
+                for (let i = 1; i < this.trail.length - 1; i++) {
+                    const xc = (this.trail[i].x + this.trail[i + 1].x) / 2;
+                    const yc = (this.trail[i].y + this.trail[i + 1].y) / 2;
+                    ctx.quadraticCurveTo(this.trail[i].x, this.trail[i].y, xc, yc);
+                }
+                
+                ctx.lineTo(this.trail[this.trail.length - 1].x, this.trail[this.trail.length - 1].y);
+                
+                const gradient = ctx.createLinearGradient(
+                    this.trail[0].x, this.trail[0].y,
+                    this.trail[this.trail.length - 1].x, this.trail[this.trail.length - 1].y
+                );
+                gradient.addColorStop(0, this.color);  // Fully opaque at the start
+                gradient.addColorStop(0.4, this.color);  // Stay opaque for 40% of the trail
+                gradient.addColorStop(1, `${this.color}00`);  // Fade to transparent at the end
+                
+                ctx.strokeStyle = gradient;
+                ctx.lineWidth = this.size * 2;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.stroke();
+            }
 
-        this.trail.unshift({ x: this.x, y: this.y });
-        if (this.trail.length > this.trailLength) {
-          this.trail.pop();
+            // Only draw the ball if it's on screen
+            if (this.y + this.size >= 0 && this.y - this.size <= height) {
+                // Draw ball with subtle glow effect
+                ctx.save();
+                if (glowEnabled) {
+                    ctx.shadowColor = this.color;
+                    ctx.shadowBlur = 10;
+                }
+                ctx.beginPath();
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = this.opacity;
+                ctx.arc(this.x, this.y, this.size, 0, 2 * Math.PI);
+                ctx.fill();
+
+                // Add a subtle highlight
+                const gradient = ctx.createRadialGradient(
+                    this.x, this.y, 0,
+                    this.x, this.y, this.size
+                );
+                gradient.addColorStop(0, this.color);  // Center maintains rich color
+                gradient.addColorStop(0.8, this.color);
+                gradient.addColorStop(1, 'rgba(255, 255, 255, 0.5)');  // Subtle white edge
+
+                ctx.globalAlpha = this.opacity;
+                ctx.fillStyle = gradient;
+                ctx.arc(this.x, this.y, this.size, 0, 2 * Math.PI);
+                ctx.fill();
+
+                ctx.globalAlpha = 1;
+                ctx.restore();
+            }
         }
-      }
+
+        update() {
+            this.angle += 0.1;
+            // Update trail
+            if (trailsEnabled) {
+                this.trail.unshift({x: this.x, y: this.y});
+                if (this.trail.length > trailLength) {
+                    this.trail.pop();
+                }
+            } else {
+                this.trail = [];
+            }
+
+            if ((this.x + this.size) >= width || (this.x - this.size) <= 0) {
+                this.velX = -(this.velX);
+            }
+            if (this.y + this.size >= height) {
+                if (this.bounceCount < maxBounces) {
+                    this.velY = -(this.velY * 0.8);
+                    this.bounceCount++;
+                } else {
+                    this.opacity -= 0.05;
+                    if (this.opacity <= 0) {
+                        this.opacity = 0;
+                        this.active = false;
+                    }
+                }
+            } else {
+                this.velY += 0.35;
+            }
+            this.x += this.velX + Math.sin(this.angle) * 0.5;
+            this.y += this.velY;
+
+            // Check if the ball and its trail are completely off-screen
+            if (this.y - this.size > height && (!this.trail.length || this.trail[this.trail.length - 1].y - this.size > height)) {
+                this.active = false;
+            }
+        }
     }
 
     function addBalls(number) {
-      for (let i = 0; i < number; i++) {
-        let ball = new Ball();
-        balls.push(ball);
-      }
+        for (let i = 0; i < number; i++) {
+            let ball = new Ball();
+            balls.push(ball);
+        }
     }
 
     function loop() {
-      ctx.fillStyle = 'rgba(54, 54, 54, 1)';
-      ctx.fillRect(0, 0, width, height);
-      balls = balls.filter(ball => ball.bounceCount <= maxBounces + 1);
-      for (let i = 0; i < balls.length; i++) {
-        balls[i].draw();
-        balls[i].update();
-      }
-      requestAnimationFrame(loop);
+        ctx.fillStyle = 'rgba(15, 12, 41, 0.2)';
+        ctx.fillRect(0, 0, width, height);
+        
+        balls = balls.filter(ball => ball.active);
+        for (let i = 0; i < balls.length; i++) {
+            balls[i].update();
+            balls[i].draw();
+        }
+        requestAnimationFrame(loop);
     }
 
     loop();
 
     document.addEventListener('keydown', function(e) {
-      if (e.key === ' ' || e.keyCode === 32) {
-        addBalls(maxBalls);
-      }
+        if (e.key === ' ' || e.keyCode === 32) {
+            addBalls(maxBalls);
+        }
     });
 
     canvas.addEventListener('mousedown', function(e) {
-      if (e.button === 0) {
-        addBalls(maxBalls);
-      }
+        if (e.button === 0) {
+            addBalls(maxBalls);
+        }
     });
 
-    generateColorCheckboxes();
-  </script>
+    generateColorOptions();
+</script>
 </body>
 </html>
